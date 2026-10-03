@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>ResumeIQ — AI Resume Intelligence</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/style.css"
+    >
+</head>
+
+
+<body>
+
+    <!-- NAVIGATION -->
+
+    <header class="navbar">
+
+        <div class="nav-inner">
+
+            <a
+                href="/"
+                class="logo"
+            >
+                <span class="logo-mark">R</span>
+
+                <span class="logo-text">
+                    ResumeIQ
+                </span>
+            </a>
+
+
+            <nav class="nav-links">
+
+                <a href="#analyze">
+                    Analyze
+                </a>
+
+                <a href="#how-it-works">
+                    How It Works
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+
+    <main>
+
+        <!-- HERO -->
+
+        <section class="hero">
+
+            <div class="hero-inner">
+
+                <div class="hero-copy">
+
+                    <span class="eyebrow">
+                        AI RESUME INTELLIGENCE
+                    </span>
+
+                    <h1>
+                        Understand how your resume
+                        matches the job.
+                    </h1>
+
+                    <p class="hero-description">
+                        ResumeIQ analyzes your resume against
+                        a job description using NLP, semantic
+                        matching, skill analysis, and AI-powered
+                        recommendations.
+                    </p>
+
+                    <a
+                        href="#analyze"
+                        class="hero-button"
+                    >
+                        Analyze Your Resume
+                        <span>→</span>
+                    </a>
+
+                </div>
+
+
+                <div class="hero-panel">
+
+                    <div class="hero-panel-header">
+
+                        <span class="status-dot"></span>
+
+                        ResumeIQ Analysis Engine
+
+                    </div>
+
+
+                    <div class="hero-metric">
+
+                        <div>
+                            <span>Semantic Matching</span>
+                            <strong>AI</strong>
+                        </div>
+
+                        <div>
+                            <span>Skill Analysis</span>
+                            <strong>NLP</strong>
+                        </div>
+
+                        <div>
+                            <span>Knowledge Retrieval</span>
+                            <strong>RAG</strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="hero-line"></div>
+
+
+                    <p>
+                        Resume extraction → skill matching
+                        → semantic analysis → recommendations
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- HOW IT WORKS -->
+
+        <section
+            id="how-it-works"
+            class="workflow-section"
+        >
+
+            <div class="section-container">
+
+                <div class="section-intro">
+
+                    <span class="eyebrow">
+                        HOW IT WORKS
+                    </span>
+
+                    <h2>
+                        From resume to actionable insights.
+                    </h2>
+
+                    <p>
+                        ResumeIQ combines traditional resume
+                        parsing with modern NLP and retrieval
+                        techniques.
+                    </p>
+
+                </div>
+
+
+                <div class="workflow-grid">
+
+                    <article class="workflow-card">
+
+                        <span class="workflow-number">
+                            01
+                        </span>
+
+                        <h3>
+                            Upload
+                        </h3>
+
+                        <p>
+                            Upload your PDF resume and provide
+                            the target job description.
+                        </p>
+
+                    </article>
+
+
+                    <article class="workflow-card">
+
+                        <span class="workflow-number">
+                            02
+                        </span>
+
+                        <h3>
+                            Analyze
+                        </h3>
+
+                        <p>
+                            ResumeIQ extracts skills, sections,
+                            experience and other information.
+                        </p>
+
+                    </article>
+
+
+                    <article class="workflow-card">
+
+                        <span class="workflow-number">
+                            03
+                        </span>
+
+                        <h3>
+                            Match
+                        </h3>
+
+                        <p>
+                            Semantic embeddings and skill
+                            matching compare the resume with
+                            the job requirements.
+                        </p>
+
+                    </article>
+
+
+                    <article class="workflow-card">
+
+                        <span class="workflow-number">
+                            04
+                        </span>
+
+                        <h3>
+                            Improve
+                        </h3>
+
+                        <p>
+                            AI generates structured insights,
+                            learning suggestions and project
+                            recommendations.
+                        </p>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ANALYSIS -->
+
+        <section
+            id="analyze"
+            class="analyze-section"
+        >
+
+            <div class="section-container">
+
+                <div class="analysis-heading">
+
+                    <div>
+
+                        <span class="eyebrow">
+                            RESUME ANALYSIS
+                        </span>
+
+                        <h2>
+                            Analyze your resume
+                        </h2>
+
+                        <p>
+                            Upload a PDF and paste the job
+                            description you want to evaluate.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <form
+                    id="analyze-form"
+                    class="workspace"
+                >
+
+                    <!-- RESUME -->
+
+                    <div class="input-card">
+
+                        <div class="card-header">
+
+                            <div>
+
+                                <span class="card-label">
+                                    STEP 01
+                                </span>
+
+                                <h3>
+                                    Your Resume
+                                </h3>
+
+                            </div>
+
+                            <span class="required">
+                                PDF
+                            </span>
+
+                        </div>
+
+
+                        <div
+                            id="resume-dropzone"
+                            class="resume-dropzone"
+                        >
+
+                            <input
+                                type="file"
+                                id="resume"
+                                name="resume"
+                                accept=".pdf,application/pdf"
+                            >
+
+
+                            <div
+                                id="resume-empty"
+                                class="resume-empty"
+                            >
+
+                                <div class="upload-icon">
+                                    ↑
+                                </div>
+
+                                <h4>
+                                    Drop your resume here
+                                </h4>
+
+                                <p>
+                                    or click to browse your files
+                                </p>
+
+                                <span>
+                                    PDF only · Maximum 10 MB
+                                </span>
+
+                            </div>
+
+
+                            <div
+                                id="resume-selected"
+                                class="resume-selected hidden"
+                            >
+
+                                <div class="file-icon">
+                                    PDF
+                                </div>
+
+                                <div>
+
+                                    <span>
+                                        Selected resume
+                                    </span>
+
+                                    <strong
+                                        id="resume-filename"
+                                    >
+                                        resume.pdf
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="resume-actions">
+
+                            <button
+                                type="button"
+                                id="choose-resume"
+                                class="button-secondary"
+                            >
+                                Choose Resume
+                            </button>
+
+
+                            <button
+                                type="button"
+                                id="clear-resume"
+                                class="button-ghost"
+                                disabled
+                            >
+                                Clear Resume
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- JOB DESCRIPTION -->
+
+                    <div class="input-card">
+
+                        <div class="card-header">
+
+                            <div>
+
+                                <span class="card-label">
+                                    STEP 02
+                                </span>
+
+                                <h3>
+                                    Job Description
+                                </h3>
+
+                            </div>
+
+                            <span class="required">
+                                REQUIRED
+                            </span>
+
+                        </div>
+
+
+                        <div class="textarea-wrapper">
+
+                            <textarea
+                                id="job-description"
+                                name="job_description"
+                                maxlength="20000"
+                                placeholder="Paste the job description here..."
+                            ></textarea>
+
+
+                            <div class="textarea-footer">
+
+                                <span>
+                                    Include responsibilities,
+                                    requirements and preferred skills.
+                                </span>
+
+                                <span id="character-count">
+                                    0 / 20,000
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- ACTION -->
+
+                    <div class="workspace-action">
+
+                        <div>
+
+                            <strong>
+                                Ready to analyze?
+                            </strong>
+
+                            <p>
+                                ResumeIQ will process the resume
+                                and compare it with the job.
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            id="analyze-button"
+                            class="analyze-button"
+                        >
+
+                            <span>
+                                Analyze Resume
+                            </span>
+
+                            <span class="button-arrow">
+                                →
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- RESULTS -->
+
+        <section class="results-section">
+
+            <div class="section-container">
+
+                <div id="result"></div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- FOOTER -->
+
+    <footer class="footer">
+
+        <div class="footer-inner">
+
+            <div>
+
+                <strong>
+                    ResumeIQ
+                </strong>
+
+                <span>
+                    AI Resume Intelligence & Job Matching
+                </span>
+
+            </div>
+
+
+            <span>
+                Built with FastAPI, NLP, RAG and Ollama
+            </span>
+
+        </div>
+
+    </footer>
+
+
+
+    <script src="/static/app.js"></script>
+
+</body>
+
+</html>

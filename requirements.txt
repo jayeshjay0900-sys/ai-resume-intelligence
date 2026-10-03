@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+python-multipart
+pydantic
+pymupdf
+sentence-transformers
+scikit-learn
+faiss-cpu
+langchain-text-splitters
+numpy
+requests
+httpx
+pytest
+python-dotenv
