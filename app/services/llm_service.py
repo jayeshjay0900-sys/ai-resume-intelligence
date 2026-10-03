@@ -4,6 +4,19 @@ import os
 import requests
 
 
+# ============================================================
+# LLM CONFIGURATION
+# ============================================================
+
+LLM_PROVIDER = os.getenv(
+    "LLM_PROVIDER",
+    "ollama"
+).lower()
+
+# ----------------------------
+# Ollama configuration
+# ----------------------------
+
 OLLAMA_URL = os.getenv(
     "OLLAMA_URL",
     "http://127.0.0.1:11434/api/generate"
@@ -14,6 +27,29 @@ OLLAMA_MODEL = os.getenv(
     "llama3.2:3b"
 )
 
+# ----------------------------
+# Groq configuration
+# ----------------------------
+
+GROQ_API_KEY = os.getenv(
+    "GROQ_API_KEY",
+    ""
+)
+
+GROQ_URL = os.getenv(
+    "GROQ_URL",
+    "https://api.groq.com/openai/v1/chat/completions"
+)
+
+GROQ_MODEL = os.getenv(
+    "GROQ_MODEL",
+    "openai/gpt-oss-20b"
+)
+
+
+# ============================================================
+# PROMPT
+# ============================================================
 
 def build_prompt(
     resume_data,
@@ -102,19 +138,11 @@ Return exactly:
     return prompt
 
 
-def generate_analysis(
-    resume_data,
-    job_description,
-    matching_data,
-    rag_results
-):
+# ============================================================
+# OLLAMA
+# ============================================================
 
-    prompt = build_prompt(
-        resume_data,
-        job_description,
-        matching_data,
-        rag_results
-    )
+def generate_with_ollama(prompt):
 
     payload = {
         "model": OLLAMA_MODEL,
@@ -187,6 +215,170 @@ def generate_analysis(
             "Ollama returned an empty response."
         )
 
+    return raw_response
+
+
+# ============================================================
+# GROQ
+# ============================================================
+
+def generate_with_groq(prompt):
+
+    if not GROQ_API_KEY:
+
+        raise RuntimeError(
+            "GROQ_API_KEY is not configured."
+        )
+
+    payload = {
+        "model": GROQ_MODEL,
+
+        "messages": [
+            {
+                "role": "system",
+                "content": (
+                    "You are ResumeIQ. "
+                    "Return only valid JSON."
+                )
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+
+        "temperature": 0.1,
+
+        "max_tokens": 180,
+
+        "response_format": {
+            "type": "json_object"
+        }
+    }
+
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    try:
+
+        response = requests.post(
+            GROQ_URL,
+            headers=headers,
+            json=payload,
+            timeout=120
+        )
+
+        response.raise_for_status()
+
+    except requests.exceptions.ConnectionError as error:
+
+        raise RuntimeError(
+            "Could not connect to Groq."
+        ) from error
+
+    except requests.exceptions.Timeout as error:
+
+        raise RuntimeError(
+            "Groq analysis timed out after 120 seconds."
+        ) from error
+
+    except requests.exceptions.HTTPError as error:
+
+        raise RuntimeError(
+            f"Groq returned HTTP error "
+            f"{response.status_code}: "
+            f"{response.text[:500]}"
+        ) from error
+
+    except requests.exceptions.RequestException as error:
+
+        raise RuntimeError(
+            f"Groq request failed: {error}"
+        ) from error
+
+    try:
+
+        data = response.json()
+
+    except ValueError as error:
+
+        raise RuntimeError(
+            "Groq returned an invalid response."
+        ) from error
+
+    try:
+
+        raw_response = (
+            data["choices"][0]["message"]["content"]
+            .strip()
+        )
+
+    except (
+        KeyError,
+        IndexError,
+        TypeError
+    ) as error:
+
+        raise RuntimeError(
+            "Groq returned an unexpected response."
+        ) from error
+
+    if not raw_response:
+
+        raise RuntimeError(
+            "Groq returned an empty response."
+        )
+
+    return raw_response
+
+
+# ============================================================
+# MAIN ANALYSIS FUNCTION
+# ============================================================
+
+def generate_analysis(
+    resume_data,
+    job_description,
+    matching_data,
+    rag_results
+):
+
+    prompt = build_prompt(
+        resume_data,
+        job_description,
+        matching_data,
+        rag_results
+    )
+
+    # --------------------------------------------------------
+    # Select LLM provider
+    # --------------------------------------------------------
+
+    if LLM_PROVIDER == "groq":
+
+        raw_response = generate_with_groq(
+            prompt
+        )
+
+    elif LLM_PROVIDER == "ollama":
+
+        raw_response = generate_with_ollama(
+            prompt
+        )
+
+    else:
+
+        raise RuntimeError(
+            f"Unsupported LLM_PROVIDER: "
+            f"{LLM_PROVIDER}"
+        )
+
+    # --------------------------------------------------------
+    # Parse JSON
+    # --------------------------------------------------------
+
     try:
 
         result = json.loads(
@@ -196,8 +388,12 @@ def generate_analysis(
     except json.JSONDecodeError as error:
 
         raise RuntimeError(
-            "Ollama returned invalid JSON."
+            "LLM returned invalid JSON."
         ) from error
+
+    # --------------------------------------------------------
+    # Guarantee required fields
+    # --------------------------------------------------------
 
     required_fields = [
         "summary",
