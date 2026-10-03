@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 import requests
 
@@ -86,15 +87,19 @@ You are ResumeIQ.
 
 Analyze the resume against the job description.
 
-RULES:
+IMPORTANT RULES:
+- Return ONLY one valid JSON object.
+- Do not use markdown.
+- Do not use ```json.
+- Do not write anything before or after the JSON.
 - Be factual.
 - Do not predict hiring outcomes.
 - Do not invent information.
 - "Not detected" means not found in the uploaded resume.
-- Use knowledge only for learning/project recommendations.
-- Return JSON only.
+- Use knowledge only for learning and project recommendations.
 - Keep answers short.
-- No markdown.
+- Make sure all JSON strings use double quotes.
+- Make sure the JSON is complete and properly closed.
 
 RESUME:
 {json.dumps(resume_context, ensure_ascii=False)}
@@ -108,7 +113,7 @@ MATCHING:
 KNOWLEDGE:
 {knowledge_context}
 
-Return exactly:
+Return exactly this JSON structure:
 
 {{
   "summary": "2 short sentences",
@@ -139,6 +144,103 @@ Return exactly:
 
 
 # ============================================================
+# JSON PARSER
+# ============================================================
+
+def extract_json(raw_response: str):
+    """
+    Safely extract a JSON object from an LLM response.
+
+    Handles:
+    - Normal JSON
+    - JSON surrounded by whitespace
+    - ```json ... ```
+    - Extra text before/after JSON
+    """
+
+    if not raw_response:
+        raise RuntimeError(
+            "LLM returned an empty response."
+        )
+
+    text = raw_response.strip()
+
+    # --------------------------------------------------------
+    # First attempt: direct JSON parsing
+    # --------------------------------------------------------
+
+    try:
+        return json.loads(text)
+
+    except json.JSONDecodeError:
+        pass
+
+    # --------------------------------------------------------
+    # Remove markdown code fences
+    # --------------------------------------------------------
+
+    text = re.sub(
+        r"```json\s*",
+        "",
+        text,
+        flags=re.IGNORECASE
+    )
+
+    text = re.sub(
+        r"```\s*$",
+        "",
+        text
+    )
+
+    text = text.strip()
+
+    # --------------------------------------------------------
+    # Second attempt after removing code fences
+    # --------------------------------------------------------
+
+    try:
+        return json.loads(text)
+
+    except json.JSONDecodeError:
+        pass
+
+    # --------------------------------------------------------
+    # Find the JSON object inside extra text
+    # --------------------------------------------------------
+
+    start = text.find("{")
+    end = text.rfind("}")
+
+    if start != -1 and end != -1 and end > start:
+
+        json_text = text[
+            start:end + 1
+        ]
+
+        try:
+            return json.loads(
+                json_text
+            )
+
+        except json.JSONDecodeError:
+            pass
+
+    # --------------------------------------------------------
+    # Give a useful error
+    # --------------------------------------------------------
+
+    preview = raw_response[:500].replace(
+        "\n",
+        " "
+    )
+
+    raise RuntimeError(
+        "LLM returned invalid JSON. "
+        f"Response preview: {preview}"
+    )
+
+
+# ============================================================
 # OLLAMA
 # ============================================================
 
@@ -152,7 +254,7 @@ def generate_with_ollama(prompt):
 
         "options": {
             "temperature": 0.1,
-            "num_predict": 180,
+            "num_predict": 300,
             "num_ctx": 1536
         }
     }
@@ -238,7 +340,8 @@ def generate_with_groq(prompt):
                 "role": "system",
                 "content": (
                     "You are ResumeIQ. "
-                    "Return only valid JSON."
+                    "Return only one valid JSON object. "
+                    "Do not use markdown."
                 )
             },
             {
@@ -249,7 +352,7 @@ def generate_with_groq(prompt):
 
         "temperature": 0.1,
 
-        "max_tokens": 180,
+        "max_tokens": 300,
 
         "response_format": {
             "type": "json_object"
@@ -376,20 +479,19 @@ def generate_analysis(
         )
 
     # --------------------------------------------------------
-    # Parse JSON
+    # Parse JSON safely
     # --------------------------------------------------------
 
-    try:
+    result = extract_json(
+        raw_response
+    )
 
-        result = json.loads(
-            raw_response
-        )
-
-    except json.JSONDecodeError as error:
+    if not isinstance(result, dict):
 
         raise RuntimeError(
-            "LLM returned invalid JSON."
-        ) from error
+            "LLM returned valid JSON, "
+            "but it was not a JSON object."
+        )
 
     # --------------------------------------------------------
     # Guarantee required fields
